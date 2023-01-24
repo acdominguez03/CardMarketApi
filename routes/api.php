@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\CardsController;
+use App\Http\Controllers\CollectionsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +33,12 @@ Route::prefix('users')->group(function(){
 Route::prefix('cards')->group(function(){
     
     Route::middleware(['auth:sanctum', 'abilities:admin'])->put('/create', [CardsController::class, 'create']);
+
+});
+
+Route::prefix('collections')->group(function(){
+    
+    Route::middleware(['auth:sanctum', 'abilities:admin'])->put('/create', [CollectionsController::class, 'create']);
 
 });
 
