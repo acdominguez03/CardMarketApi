@@ -24,5 +24,6 @@ Route::prefix('users')->group(function(){
     Route::get('/getAll', [UsersController::class, 'getAll']);
     Route::put('/register', [UsersController::class, 'register']);
     Route::post('/login', [UsersController::class, 'login']);
+    Route::post('/recoverPassword', [UsersController::class, 'recoverPassword']);
 
 });
