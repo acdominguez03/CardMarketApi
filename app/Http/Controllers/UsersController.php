@@ -51,8 +51,6 @@ class UsersController extends Controller
                     return ResponseGenerator::generateResponse("KO", 405, null, "Error al guardar");
                 }
             }
-
-
         }
     }
 
@@ -86,7 +84,8 @@ class UsersController extends Controller
                 }
             }
 
-            //ytA72UU5ksAtoYO02qN2EQYLD5Em4R2Nd20aobmI
+            //lemkHUK3Qt68C4t6xtgDqvCUiRuOSUE2XaakGbI2
+            //andres token: sZxym4aPuPQEMvCeYlSP5F08smCl2Pq0ZyQlWEC8
 
 
         }

@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\CardsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,3 +28,10 @@ Route::prefix('users')->group(function(){
     Route::post('/recoverPassword', [UsersController::class, 'recoverPassword']);
 
 });
+
+Route::prefix('cards')->group(function(){
+    
+    Route::middleware(['auth:sanctum', 'abilities:admin'])->put('/create', [CardsController::class, 'create']);
+
+});
+
