@@ -71,14 +71,18 @@ class UsersController extends Controller
                 return ResponseGenerator::generateResponse("OK", 422, null, $validate->errors());
             }else{
                 try{
-                    $user = User::where('username', 'like', $data->username, 'AND', 'password', '==', Hash::check('plain-text', $data->password))->firstOrFail();
+                    $user = User::where('username', 'like', $data->username)->firstOrFail();
+
+                    if(!Hash::check($data->password, $user->password)) {
+                        return ResponseGenerator::generateResponse("KO", 404, null, "Login incorrecto, comprueba la contraseña");
+                    }else{
+                        $user->tokens()->delete();
     
-                    $user->tokens()->delete();
-    
-                    $token = $user->createToken($user->username, [$user->type]);
-                    return ResponseGenerator::generateResponse("OK", 200, $token->plainTextToken, "Login correcto");
+                        //$token = $user->createToken($user->username, [$user->type]);
+                        return ResponseGenerator::generateResponse("OK", 200, null, "Login correcto");
+                    }
                 }catch(\Exception $e){
-                    return ResponseGenerator::generateResponse("KO", 404, null, "Login incorrecto");
+                    return ResponseGenerator::generateResponse("KO", 404, null, "Login incorrecto, usuario erróneo");
                 }
             }
 
