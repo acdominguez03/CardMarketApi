@@ -105,11 +105,12 @@ class UsersController extends Controller
 
                 if(!empty($user)){
                     $newPass = Str::random(6);
-                    $user[0]->password = Hash::make($newPass);
+                    $user[0]->password = $newPass;
 
                     try{
-                        $user[0]->save();
-                        return ResponseGenerator::generateResponse("OK", 200, "Contraseña: " . $newPass, "Contraseña recuperada");
+                        //$user[0]->save();
+                        //return ResponseGenerator::generateResponse("OK", 200, "Contraseña: " . $newPass, "Contraseña recuperada");
+                        return ResponseGenerator::generateResponse("OK", 200, $user, "Contraseña recuperada");
                     }catch(\Exception $e){
                         return ResponseGenerator::generateResponse("KO", 405,null, "Error al guardar el código del usuario");
                     }
@@ -118,7 +119,7 @@ class UsersController extends Controller
                 } 
             }
 
-            //Ismael password : IujpJJ
+            //Ismael password : hYQx6x
         }
     }
 }
