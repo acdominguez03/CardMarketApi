@@ -74,7 +74,7 @@ class UsersController extends Controller
     
                     $user->tokens()->delete();
     
-                    $token = $user->createToken($user->type);
+                    $token = $user->createToken('new user', [$user->type]);
                     return ResponseGenerator::generateResponse("OK", 200, $token->plainTextToken, "Login correcto");
                 }catch(\Exception $e){
                     return ResponseGenerator::generateResponse("KO", 404, null, "Login incorrecto");
