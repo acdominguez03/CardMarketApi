@@ -79,14 +79,14 @@ class UsersController extends Controller
                         $user->tokens()->delete();
     
                         $token = $user->createToken($user->username, [$user->type]);
-                        return ResponseGenerator::generateResponse("OK", 200, $token, "Login correcto");
+                        return ResponseGenerator::generateResponse("OK", 200, $token->plainTextToken, "Login correcto");
                     }
                 }catch(\Exception $e){
                     return ResponseGenerator::generateResponse("KO", 404, null, "Login incorrecto, usuario erróneo");
                 }
             }
 
-            //LM1VCQb0NbkMZj46lAX3RSZOveogyiuY3K4x7O4I
+            //ytA72UU5ksAtoYO02qN2EQYLD5Em4R2Nd20aobmI
 
 
         }
@@ -112,7 +112,7 @@ class UsersController extends Controller
                     $user[0]->password = Hash::make($newPass);
 
                     try{
-                        $user->save();
+                        $user[0]->save();
                         return ResponseGenerator::generateResponse("OK", 200, "Contraseña: " . $newPass, "Contraseña recuperada");
                     }catch(\Exception $e){
                         return ResponseGenerator::generateResponse("KO", 405,null, "Error al guardar el código del usuario");
@@ -122,7 +122,7 @@ class UsersController extends Controller
                 } 
             }
 
-            //Ismael password : hYQx6x
+            //Ismael password : HgXbwL
         }
     }
 }
