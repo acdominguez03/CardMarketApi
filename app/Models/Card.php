@@ -15,9 +15,4 @@ class Card extends Model
     {
         return $this->belongsToMany(Collection::class);
     }
-
-    public function users()
-    {
-        return $this->belongsToMany(User::class);
-    }
 }

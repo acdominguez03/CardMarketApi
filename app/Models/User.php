@@ -13,9 +13,4 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    public function cards()
-    {
-        return $this->belongsToMany(Card::class);
-    }
-
 }

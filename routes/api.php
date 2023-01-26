@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\CardsController;
 use App\Http\Controllers\CollectionsController;
+use App\Http\Controllers\AdvertsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,7 +36,6 @@ Route::prefix('cards')->group(function(){
     Route::middleware(['auth:sanctum', 'abilities:admin'])->put('/create', [CardsController::class, 'create']);
     Route::middleware(['auth:sanctum', 'abilities:admin'])->put('/addCardToCollection', [CardsController::class, 'addCardToCollection']);
     Route::middleware(['auth:sanctum', 'ability:profesional,particular'])->get('/searcher/{name}', [CardsController::class, 'searcher']);
-    Route::middleware(['auth:sanctum', 'ability:profesional,particular'])->put('/sellCard', [CardsController::class, 'sellCard']);
     Route::get('/searchToBuy/{name}', [CardsController::class, 'searchToBuy']);
 
 });
@@ -45,4 +45,12 @@ Route::prefix('collections')->group(function(){
     Route::middleware(['auth:sanctum', 'abilities:admin'])->put('/create', [CollectionsController::class, 'create']);
 
 });
+
+Route::prefix('adverts')->group(function(){
+    
+    Route::middleware(['auth:sanctum', 'ability:profesional,particular'])->put('/createAdvertToSellCard', [AdvertsController::class, 'createAdvertToSellCard']);
+
+});
+
+
 

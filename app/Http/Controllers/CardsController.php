@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Helpers\ResponseGenerator;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Card;
+use App\Models\User;
 use App\Models\Collection;
 
 class CardsController extends Controller
@@ -91,39 +92,9 @@ class CardsController extends Controller
         return ResponseGenerator::generateResponse("OK", 200, $cards, "Cartas filtradas");
     }
 
-    public function sellCard(Request $request){
-        $json = $request->getContent();
-
-        $data = json_decode($json);
-
-        if($data){
-
-            //validar datos
-            $validate = Validator::make(json_decode($json,true), [
-               'card_id' => 'required|integer',
-               'nºcards' => 'required|integer',
-               'price' => 'required|numeric'
-            ]);
-            if($validate->fails()){
-                return ResponseGenerator::generateResponse("OK", 422, null, $validate->errors());
-            }else{
-               $userId = auth()->id();
-               $card = Card::find($data->card_id);
-
-                if($card){
-                    $card->users()->attach($userId, ['price' => $data->price, 'nºcards' => $data->nºcards]);
-
-                    return ResponseGenerator::generateResponse("OK", 200, null, "Carta puesta a la venta");
-                }else{
-                    return ResponseGenerator::generateResponse("KO", 404, null, "Carta no encontrada");
-                }
-            }
-        }else{
-            return ResponseGenerator::generateResponse("KO", 500, null, "Datos no introducidos");
-        }
-    }
-
     public function searchToBuy($name){
-        
+        $user = User::find(1)->cards()->get();
+
+        return ResponseGenerator::generateResponse("OK", 422, $user, "");
     }
 }
