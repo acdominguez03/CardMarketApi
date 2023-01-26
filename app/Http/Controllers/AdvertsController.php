@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Helpers\ResponseGenerator;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Card;
+use App\Models\Advert;
 
 class AdvertsController extends Controller
 {
