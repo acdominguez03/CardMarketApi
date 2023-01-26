@@ -43,26 +43,23 @@ class CollectionsController extends Controller
                     foreach($data->cards as $cards){
                         if(isset($cards->id)){
                             $existCard = Card::find($cards->id);
-                            if(!empty($existCard)){
-                                $existCard->collection_id = $collection->id;
-                            }
+
                             try{
-                                $existCard->save();
+                                $card->collections()->attach($collection->id);
                             }catch(\Exception $e){
-                                print($e);
+                                $collection->delete();
                             }
                         }else{
 
                             $card = new Card();
                             $card->name = $cards->name;
                             $card->description = $cards->description;
-                            $card->collection_id = $collection->id;
 
                             try{
                                 $card->save();
                                 $card->collections()->attach($collection->id);
                             }catch(\Exception $e){
-                                print($e);
+                                $collection->delete();
                             }
                         }
 

@@ -22,8 +22,7 @@ class CardsController extends Controller
             //validar datos
             $validate = Validator::make(json_decode($json,true), [
                'name' => 'required',
-               'description' => 'required',
-               'collection_id' => 'required|integer'
+               'description' => 'required'
             ]);
             if($validate->fails()){
                 return ResponseGenerator::generateResponse("OK", 422, null, $validate->errors());
@@ -36,7 +35,7 @@ class CardsController extends Controller
                     $card->description = $data->description;
                     $checkCollection = Collection::where('id', '=', $data->collection_id)->first();
                     if($checkCollection){
-                        $card->collection_id = $data->collection_id;
+                        $card->collections()->attach($checkCollection);
                     }else{
                         return ResponseGenerator::generateResponse("KO", 404, null, "Colección no encontrada");
                     }
