@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::dropIfExists('adverts');
         Schema::create('adverts', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->contrained();
             $table->foreignId('card_id')->contrained();
             $table->integer('nºcards');
             $table->float('price');

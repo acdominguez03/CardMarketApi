@@ -34,6 +34,7 @@ class AdvertsController extends Controller
                     $advert->card_id = $data->card_id;
                     $advert->nºcards = $data->nºcards;
                     $advert->price = $data->price;
+                    $advert->user_id = auth()->id();
 
                     try{
                         $advert->save();
