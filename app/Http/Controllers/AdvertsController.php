@@ -35,7 +35,13 @@ class AdvertsController extends Controller
                     $advert->nºcards = $data->nºcards;
                     $advert->price = $data->price;
 
-                    return ResponseGenerator::generateResponse("OK", 200, null, "Anuncio creado y carta puesta a la venta");
+                    try{
+                        $advert->save();
+                        return ResponseGenerator::generateResponse("OK", 200, null, "Anuncio creado y carta puesta a la venta");
+                    }catch(\Exception $e){
+                        return ResponseGenerator::generateResponse("KO", 405, null, "Error al guardar el anuncio");
+                    }
+
                 }else{
                     return ResponseGenerator::generateResponse("KO", 404, null, "Carta no encontrada");
                 }
