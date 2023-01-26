@@ -20,7 +20,7 @@ class CardsController extends Controller
             $validate = Validator::make(json_decode($json,true), [
                'name' => 'required',
                'description' => 'required',
-               'collection' => 'required|integer'
+               'collection_id' => 'required|integer'
             ]);
             if($validate->fails()){
                 return ResponseGenerator::generateResponse("OK", 422, null, $validate->errors());
@@ -31,11 +31,16 @@ class CardsController extends Controller
                     $card = new Card();
                     $card->name = $data->name;
                     $card->description = $data->description;
-                    $card->collection = $data->collection;
+                    $checkCollection = Collection::where('id', '=', $data->collection_id)->first();
+                    if($checkCollection){
+                        $card->collection_id = $data->collection_id;
+                    }else{
+                        return ResponseGenerator::generateResponse("KO", 404, null, "Colección no encontrada");
+                    }
 
                     try{
                         $card->save();
-                        return ResponseGenerator::generateResponse("OK", 200, $card, "Usuario añadido correctamente");
+                        return ResponseGenerator::generateResponse("OK", 200, $card, "Carta añadida correctamente");
                     }catch(\Exception $e){
                         return ResponseGenerator::generateResponse("KO", 405, null, "Error al guardar");
                     }

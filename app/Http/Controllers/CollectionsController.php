@@ -21,32 +21,55 @@ class CollectionsController extends Controller
                'name' => 'required',
                'symbol' => 'required',
                'editDate' => 'required',
-               'cards' => 'required|array:name,description'
+               'cards' => 'required|array|min:1'
             ]);
             if($validate->fails()){
-                return ResponseGenerator::generateResponse("OK", 422, null, $validate->errors());
+                return ResponseGenerator::generateResponse("KO", 422, null, $validate->errors());
             }else{
-                $collection = new Collection();
-                $collection->name = $data->name;
-                $collection->symbol = $data->symbol;
-                $collection->editDate = $data->editDate;
+                if(empty($data->cards)){
+                    return ResponseGenerator::generateResponse("OK", 422, null, "Por favor para crear una colección es necesario añadir cartas"); 
+                }else{
+                    $collection = new Collection();
+                    $collection->name = $data->name;
+                    $collection->symbol = $data->symbol;
+                    $collection->editDate = $data->editDate;
 
-                foreach($data->cards as $cards){
-                    $card = new Card();
-                    $card->name = $cards->name;
-                    $card->description = $cards->description;
+                    try{
+                        $collection->save();
+                    }catch(\Exception $e){
+                        return ResponseGenerator::generateResponse("KO", 405, null, "Error al guardar");
+                    }
 
-                    $card->collections()->attach($collection->id);
+                    foreach($data->cards as $cards){
+                        if(isset($cards->id)){
+                            $existCard = Card::find($cards->id);
+                            if(!empty($existCard)){
+                                $existCard->collection_id = $collection->id;
+                            }
+                            try{
+                                $existCard->save();
+                            }catch(\Exception $e){
+                                print($e);
+                            }
+                        }else{
+
+                            $card = new Card();
+                            $card->name = $cards->name;
+                            $card->description = $cards->description;
+                            $card->collection_id = $collection->id;
+
+                            try{
+                                $card->save();
+                                $card->collections()->attach($collection->id);
+                            }catch(\Exception $e){
+                                print($e);
+                            }
+                        }
+
+                    }
+                    return ResponseGenerator::generateResponse("OK", 200, $collection, "Colección añadida correctamente");
                 }
-
-                try{
-                    $collection->save();
-                    return ResponseGenerator::generateResponse("OK", 200, $collection, "Usuario añadido correctamente");
-                }catch(\Exception $e){
-                    return ResponseGenerator::generateResponse("KO", 405, null, "Error al guardar");
-                }
-                
-            }
+            }   
         }
     }
 }

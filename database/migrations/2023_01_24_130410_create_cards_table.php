@@ -18,7 +18,7 @@ return new class extends Migration
             $table->id();
             $table->text('name');
             $table->text('description');
-            $table->integer('collection');
+            $table->foreignId('collection_id')->contrained();
             $table->timestamps();
         });
     }
