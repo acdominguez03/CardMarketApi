@@ -36,7 +36,7 @@ Route::prefix('cards')->group(function(){
     Route::middleware(['auth:sanctum', 'abilities:admin'])->put('/create', [CardsController::class, 'create']);
     Route::middleware(['auth:sanctum', 'abilities:admin'])->put('/addCardToCollection', [CardsController::class, 'addCardToCollection']);
     Route::middleware(['auth:sanctum', 'ability:profesional,particular'])->get('/searcher/{name}', [CardsController::class, 'searcher']);
-    Route::get('/searchToBuy/{name}', [CardsController::class, 'searchToBuy']);
+    Route::get('/searchToBuy', [CardsController::class, 'searchToBuy']);
 
 });
 

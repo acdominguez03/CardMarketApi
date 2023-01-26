@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Card;
 use App\Models\User;
 use App\Models\Collection;
+use App\Models\Advert;
+use Illuminate\Support\Facades\DB;
 
 class CardsController extends Controller
 {
@@ -92,9 +94,30 @@ class CardsController extends Controller
         return ResponseGenerator::generateResponse("OK", 200, $cards, "Cartas filtradas");
     }
 
-    public function searchToBuy($name){
-        $user = User::find(1)->cards()->get();
+    public function searchToBuy(Request $request){
+        $json = $request->getContent();
 
-        return ResponseGenerator::generateResponse("OK", 422, $user, "");
+        $data = json_decode($json);
+
+        if($data){
+            //validar datos
+            $validate = Validator::make(json_decode($json,true), [
+               'name' => 'required|string'
+            ]);
+            if($validate->fails()){
+                return ResponseGenerator::generateResponse("OK", 422, null, $validate->errors());
+            }else{
+                $cards = DB::table('cards')
+                ->join('adverts', 'cards.id', '=', 'adverts.card_id')
+                ->select('cards.id', 'cards.name', 'adverts.price')
+                ->where('name', 'LIKE', "%". $data->name . "%", 'AND', 'cards.id', 'IN', 'adverts.card_id')
+                ->orderBy('adverts.price','DESC')
+                ->get();
+
+                return ResponseGenerator::generateResponse("OK", 200, $cards, "Cartas filtradas");
+            }
+        }else{
+            return ResponseGenerator::generateResponse("KO", 500, null, "Faltan el nombre por el que buscar");
+        }   
     }
 }
