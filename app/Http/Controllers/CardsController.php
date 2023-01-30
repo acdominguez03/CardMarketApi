@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Collection;
 use App\Models\Advert;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CardsController extends Controller
 {
@@ -102,18 +103,29 @@ class CardsController extends Controller
         $data = json_decode($json);
 
         if($data){
+            Log::info('Obtenemos el valor de la petición', ['data' => $data]);
+
             $validate = Validator::make(json_decode($json,true), [
                'name' => 'required'
             ]);
 
             if($validate->fails()){
+                Log::error('Error en la validación de los datos', ['errors' => $validate->errors()]);
                 return ResponseGenerator::generateResponse("OK", 422, null, $validate->errors());
             }else{
-                $cards = Card::select('id', 'name')->where('name', 'LIKE', "%". $data->name . "%")->get();
+                Log::info('Datos validados correctamente', ['valor' => $data->name]);
 
-                return ResponseGenerator::generateResponse("OK", 200, $cards, "Cartas filtradas");
+                try {
+                    $cards = Card::select('id', 'name')->where('name', 'LIKE', "%". $data->name . "%")->get();
+                    Log::info('Obtenemos las cartas por el filtro', ['cartas' => $cards]);
+                    return ResponseGenerator::generateResponse("OK", 200, $cards, "Cartas filtradas");
+                }catch(\Exception $e){
+                    Log::error('Error en la base de datos', ['error' => $e]);
+                    return ResponseGenerator::generateResponse("OK", 200, $e, "Error en la base de datos");
+                }
             }
         }else{
+            Log::error('No hay filtro');
             return ResponseGenerator::generateResponse("OK", 500, null,"No se ha encontrado el filtro");
         }
         
