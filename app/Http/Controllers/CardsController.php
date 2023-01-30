@@ -34,11 +34,6 @@ class CardsController extends Controller
                     $card->name = $data->name;
                     $card->description = $data->description;
                     $checkCollection = Collection::where('id', '=', $data->collection_id)->first();
-                    if($checkCollection){
-                        $card->collections()->attach($checkCollection);
-                    }else{
-                        return ResponseGenerator::generateResponse("KO", 404, null, "Colección no encontrada");
-                    }
 
                     try{
                         $card->save();
@@ -46,6 +41,15 @@ class CardsController extends Controller
                     }catch(\Exception $e){
                         return ResponseGenerator::generateResponse("KO", 405, null, "Error al guardar");
                     }
+
+                    if($checkCollection){
+                        $card->collections()->attach($checkCollection);
+                    }else{
+                        $card->delete();
+                        return ResponseGenerator::generateResponse("KO", 404, null, "Colección no encontrada");
+                    }
+
+                    
                 }else{
                     return ResponseGenerator::generateResponse("KO", 405, null, "Por favor crea primero una colección");
                 }

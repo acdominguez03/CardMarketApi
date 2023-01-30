@@ -18,10 +18,13 @@ class CollectionsController extends Controller
         if($data){
             //validar datos
             $validate = Validator::make(json_decode($json,true), [
-               'name' => 'required',
-               'symbol' => 'required',
-               'editDate' => 'required',
-               'cards' => 'required|array|min:1'
+                'name' => 'required',
+                'symbol' => 'required',
+                'editDate' => 'required',
+                'cards' => 'required|array|min:1',
+                'cards.*.name' => 'required|string|max:255',
+                'cards.*.description' => 'required|string|max:255',
+                'cards.*.id' => 'nullable|integer',
             ]);
             if($validate->fails()){
                 return ResponseGenerator::generateResponse("KO", 422, null, $validate->errors());
