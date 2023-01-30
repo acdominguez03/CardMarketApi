@@ -37,15 +37,19 @@ class CardsController extends Controller
 
                     try{
                         $card->save();
-                        return ResponseGenerator::generateResponse("OK", 200, $card, "Carta añadida correctamente");
                     }catch(\Exception $e){
                         return ResponseGenerator::generateResponse("KO", 405, null, "Error al guardar");
                     }
 
                     if($checkCollection){
-                        $card->collections()->attach($checkCollection);
+                        try{
+                            $card->collections()->attach($checkCollection);
+                            return ResponseGenerator::generateResponse("OK", 200, $card, "Carta añadida correctamente");
+                        }catch(\Expection $e){
+                            $card->delete();
+                            return ResponseGenerator::generateResponse("KO", 404, null, "Error al ligar la carta a la colección");
+                        }
                     }else{
-                        $card->delete();
                         return ResponseGenerator::generateResponse("KO", 404, null, "Colección no encontrada");
                     }
 
@@ -91,10 +95,28 @@ class CardsController extends Controller
         }
     }
 
-    public function searcher($name){
-        $cards = Card::select('id', 'name')->where('name', 'LIKE', "%". $name . "%")->get();
+    public function searcher(Request $request){
 
-        return ResponseGenerator::generateResponse("OK", 200, $cards, "Cartas filtradas");
+        $json = $request->getContent();
+
+        $data = json_decode($json);
+
+        if($data){
+            $validate = Validator::make(json_decode($json,true), [
+               'name' => 'required'
+            ]);
+
+            if($validate->fails()){
+                return ResponseGenerator::generateResponse("OK", 422, null, $validate->errors());
+            }else{
+                $cards = Card::select('id', 'name')->where('name', 'LIKE', "%". $data->name . "%")->get();
+
+                return ResponseGenerator::generateResponse("OK", 200, $cards, "Cartas filtradas");
+            }
+        }else{
+            return ResponseGenerator::generateResponse("OK", 500, null,"No se ha encontrado el filtro");
+        }
+        
     }
 
     public function searchToBuy(Request $request){

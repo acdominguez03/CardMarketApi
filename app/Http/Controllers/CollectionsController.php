@@ -48,7 +48,7 @@ class CollectionsController extends Controller
                             $existCard = Card::find($cards->id);
 
                             try{
-                                $card->collections()->attach($collection->id);
+                                $existCard->collections()->attach($collection->id);
                             }catch(\Exception $e){
                                 $collection->delete();
                             }
