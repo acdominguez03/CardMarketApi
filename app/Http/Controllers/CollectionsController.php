@@ -7,6 +7,8 @@ use App\Http\Helpers\ResponseGenerator;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Collection;
 use App\Models\Card;
+use Illuminate\Support\Facades\Http;
+
 
 class CollectionsController extends Controller
 {
@@ -70,6 +72,37 @@ class CollectionsController extends Controller
                     return ResponseGenerator::generateResponse("OK", 200, $collection, "Colección añadida correctamente");
                 }
             }   
+        }
+    }
+
+    public function getCollectionsFromDB(){
+        $response = Http::get('https://api.magicthegathering.io/v1/sets')->body();
+
+        $data = json_decode($response);
+
+        if($data){
+            foreach($data->sets as $set){
+
+                $collection = Collection::firstOrCreate(
+                    ['code' => $set->code],
+                    ['name' => $set->name, 'symbol' => 'black', 'releaseDate' => $set->releaseDate,]
+                );
+
+                if($collection) {
+                    $collection->code = $set->code;
+                    $collection->name = $set->name;
+                    $collection->symbol = "black";
+                    $collection->releaseDate = $set->releaseDate;
+                    try{
+                        $collection->save();
+                    }catch(\Exception $e){
+                        return ResponseGenerator::generateResponse("OK", 405, $e, "Error al actualizar la colección"); 
+                    }
+                    
+                }
+            }
+            
+            return ResponseGenerator::generateResponse("OK", 200, null, "Colecciones guardadas");
         }
     }
 }

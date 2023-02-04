@@ -11,6 +11,7 @@ use App\Models\Collection;
 use App\Models\Advert;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class CardsController extends Controller
 {
@@ -156,5 +157,45 @@ class CardsController extends Controller
         }else{
             return ResponseGenerator::generateResponse("KO", 500, null, "Faltan el nombre por el que buscar");
         }   
+    }
+
+    public function getCardsFromDB(){
+        $response = Http::get('https://api.magicthegathering.io/v1/cards')->body();
+
+        $data = json_decode($response);
+
+        if($data){
+            foreach($data->cards as $card){
+
+                $getCard = Card::where('number','LIKE',$card->number)->get();
+
+                if(count($getCard) == 0){
+                    $newCard = new Card();
+                    $newCard->number = $card->number;
+                    $newCard->name = $card->name;
+                    $newCard->description = $card->text;
+    
+                    try {
+                        $newCard->save();
+                        $collection = Collection::where('code','LIKE',$card->set)->get();
+                        $newCard->collections()->attach($collection[0]->id); 
+                    }catch(\Exception $e){
+                        $newCard->delete();
+                        return ResponseGenerator::generateResponse("KO", 405, $e,"Error al crear la carta");
+                    }
+                }else{
+                    $getCard[0]->number = $card->number;
+                    $getCard[0]->name = $card->name;
+                    $getCard[0]->description = $card->text;
+                    try{
+                        $getCard[0]->save();
+                    }catch(\Exception $e){
+                        return ResponseGenerator::generateResponse("OK", 405, $e, "Error al actualizar la carta"); 
+                    }
+                }
+            }
+            
+            return ResponseGenerator::generateResponse("OK", 200, null, "Cartas guardadas");
+        }
     }
 }

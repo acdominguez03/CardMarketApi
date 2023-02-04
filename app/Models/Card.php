@@ -11,6 +11,8 @@ class Card extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['number','name','description'];
+
     public function collections()
     {
         return $this->belongsToMany(Collection::class);

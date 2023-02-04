@@ -16,9 +16,10 @@ return new class extends Migration
         Schema::dropIfExists('collections');
         Schema::create('collections', function (Blueprint $table) {
             $table->id();
+            $table->string("code")->unique()->nullable();
             $table->text('name');
             $table->text('symbol');
-            $table->timestamp('editDate');
+            $table->timestamp('releaseDate');
             $table->timestamps();
         });
     }

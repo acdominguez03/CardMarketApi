@@ -10,6 +10,8 @@ class Collection extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['code','name','symbol','releaseDate'];
+
     public function cards()
     {
         return $this->belongsToMany(Card::class);

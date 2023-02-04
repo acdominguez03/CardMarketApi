@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::dropIfExists('cards');
         Schema::create('cards', function (Blueprint $table) {
             $table->id();
+            $table->string("number")->unique()->nullable();
             $table->text('name');
             $table->text('description');
             $table->timestamps();
