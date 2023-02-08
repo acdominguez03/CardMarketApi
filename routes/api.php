@@ -37,14 +37,14 @@ Route::prefix('cards')->group(function(){
     Route::middleware(['auth:sanctum', 'abilities:admin'])->put('/addCardToCollection', [CardsController::class, 'addCardToCollection']);
     Route::middleware(['auth:sanctum', 'ability:profesional,particular'])->get('/searcher', [CardsController::class, 'searcher']);
     Route::get('/searchToBuy', [CardsController::class, 'searchToBuy']);
-    Route::middleware(['auth:sanctum', 'abilities:admin'])->get('/getCardsFromDB', [CardsController::class, 'getCardsFromDB']);
+    Route::middleware(['auth:sanctum', 'abilities:admin'])->get('/getDataFromDatabase', [CardsController::class, 'getDataFromDatabase']);
     
 });
 
 Route::prefix('collections')->group(function(){
     
     Route::middleware(['auth:sanctum', 'abilities:admin'])->put('/create', [CollectionsController::class, 'create']);
-    Route::middleware(['auth:sanctum', 'abilities:admin'])->get('/getCollectionsFromDB', [CollectionsController::class, 'getCollectionsFromDB']);
+    Route::middleware(['auth:sanctum', 'abilities:admin'])->get('/getDataFromDatabase', [CollectionsController::class, 'getDataFromDatabase']);
 
 });
 
