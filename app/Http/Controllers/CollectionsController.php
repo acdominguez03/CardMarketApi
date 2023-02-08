@@ -91,7 +91,7 @@ class CollectionsController extends Controller
                 if($collection) {
                     $collection->code = $set->code;
                     $collection->name = $set->name;
-                    $collection->symbol = "black";
+                    $collection->symbol = "default.png";
                     $collection->releaseDate = $set->releaseDate;
                     try{
                         $collection->save();
