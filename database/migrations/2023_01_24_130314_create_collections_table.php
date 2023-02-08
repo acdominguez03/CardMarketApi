@@ -18,7 +18,7 @@ return new class extends Migration
             $table->id();
             $table->text('name');
             $table->text('symbol');
-            $table->timestamp('editDate');
+            $table->timestamp('releaseDate');
             $table->timestamps();
         });
     }

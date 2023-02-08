@@ -99,7 +99,7 @@ class UsersController extends Controller
         if($data){
              //validar datos
             $validate = Validator::make(json_decode($json,true), [
-                'email' => 'required'
+                'email' => 'required|exists:users,email'
             ]);
             if($validate->fails()){
                 return ResponseGenerator::generateResponse("OK", 422, null, $validate->errors());

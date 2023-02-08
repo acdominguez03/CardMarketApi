@@ -34,6 +34,7 @@ Route::prefix('users')->group(function(){
 Route::prefix('cards')->group(function(){
     
     Route::middleware(['auth:sanctum', 'abilities:admin'])->put('/create', [CardsController::class, 'create']);
+    Route::middleware(['auth:sanctum', 'abilities:admin'])->post('/update', [CardsController::class, 'update']);
     Route::middleware(['auth:sanctum', 'abilities:admin'])->put('/addCardToCollection', [CardsController::class, 'addCardToCollection']);
     Route::middleware(['auth:sanctum', 'ability:profesional,particular'])->get('/searcher', [CardsController::class, 'searcher']);
     Route::get('/searchToBuy', [CardsController::class, 'searchToBuy']);
@@ -43,6 +44,7 @@ Route::prefix('cards')->group(function(){
 Route::prefix('collections')->group(function(){
     
     Route::middleware(['auth:sanctum', 'abilities:admin'])->put('/create', [CollectionsController::class, 'create']);
+    Route::middleware(['auth:sanctum', 'abilities:admin'])->post('/update', [CollectionsController::class, 'update']);
 
 });
 

@@ -20,11 +20,9 @@ class CollectionsController extends Controller
             $validate = Validator::make(json_decode($json,true), [
                 'name' => 'required',
                 'symbol' => 'required',
-                'editDate' => 'required',
+                'releaseDate' => 'required',
                 'cards' => 'required|array|min:1',
-                'cards.*.name' => 'required|string|max:255',
-                'cards.*.description' => 'required|string|max:255',
-                'cards.*.id' => 'nullable|integer',
+                'cards.*.id' => 'nullable|integer|exists:cards,id',
             ]);
             if($validate->fails()){
                 return ResponseGenerator::generateResponse("KO", 422, null, $validate->errors());
@@ -35,7 +33,7 @@ class CollectionsController extends Controller
                     $collection = new Collection();
                     $collection->name = $data->name;
                     $collection->symbol = $data->symbol;
-                    $collection->editDate = $data->editDate;
+                    $collection->releaseDate = $data->releaseDate;
 
                     try{
                         $collection->save();
@@ -53,15 +51,37 @@ class CollectionsController extends Controller
                                 $collection->delete();
                             }
                         }else{
+                            $errors = [];
 
                             $card = new Card();
-                            $card->name = $cards->name;
-                            $card->description = $cards->description;
+                            if(isset($cards->name)){
+                                $card->name = $cards->name;
+
+                                if(!is_string($cards->name)){
+                                    array_push($errors, "El nombre tiene que ser un string");
+                                }
+                            }else{
+                                array_push($errors, "Nombre de la carta no encontrado");
+                            }
+
+                            if(isset($cards->description)){
+                                $card->description = $cards->description;
+                                if(!is_string($cards->description)){
+                                    array_push($errors, "La descripción tiene que ser un string");
+                                }
+                            }else{
+                                array_push($errors, "Descripción de la carta no encontrado");
+                            }
+
+                            if(!empty($errors)){
+                                return ResponseGenerator::generateResponse("OK", 200, $errors, "");
+                            }
 
                             try{
                                 $card->save();
                                 $card->collections()->attach($collection->id);
                             }catch(\Exception $e){
+                                $card->delete();
                                 $collection->delete();
                             }
                         }
@@ -70,6 +90,38 @@ class CollectionsController extends Controller
                     return ResponseGenerator::generateResponse("OK", 200, $collection, "Colección añadida correctamente");
                 }
             }   
+        }
+    }
+
+    public function update(Request $request){
+        $json = $request->getContent();
+
+        $data = json_decode($json);
+
+        if($data){
+            //validar datos
+            $validate = Validator::make(json_decode($json,true), [
+                'id' => 'required|exists:collections,id',
+                'name' => 'required|string',
+                'symbol' => 'required|string'
+            ]);
+            if($validate->fails()){
+                return ResponseGenerator::generateResponse("KO", 422, null, $validate->errors());
+            }else{
+                $collection = Collection::find($data->id);
+
+                $collection->name = $data->name;
+                $collection->symbol = $data->symbol;
+
+                try{
+                    $collection->save();
+                    return ResponseGenerator::generateResponse("OK", 200, null, "Colección editada");
+                }catch(\Exception $e){
+                    return ResponseGenerator::generateResponse("KO", 405, null, "Error al actualizar la colección");
+                }
+            }
+        }else{
+            return ResponseGenerator::generateResponse("KO", 404, null, "Faltan datos");
         }
     }
 }

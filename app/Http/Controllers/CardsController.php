@@ -23,7 +23,8 @@ class CardsController extends Controller
             //validar datos
             $validate = Validator::make(json_decode($json,true), [
                'name' => 'required',
-               'description' => 'required'
+               'description' => 'required',
+               'collection_id' => 'required|integer'
             ]);
             if($validate->fails()){
                 return ResponseGenerator::generateResponse("OK", 422, null, $validate->errors());
@@ -51,6 +52,7 @@ class CardsController extends Controller
                             return ResponseGenerator::generateResponse("KO", 404, null, "Error al ligar la carta a la colección");
                         }
                     }else{
+                        $card->delete();
                         return ResponseGenerator::generateResponse("KO", 404, null, "Colección no encontrada");
                     }
 
@@ -59,6 +61,34 @@ class CardsController extends Controller
                     return ResponseGenerator::generateResponse("KO", 405, null, "Por favor crea primero una colección");
                 }
                 
+            }
+        }
+    }
+
+    public function update(Request $request){
+        $json = $request->getContent();
+
+        $data = json_decode($json);
+
+        if($data){
+            //validar datos
+            $validate = Validator::make(json_decode($json,true), [
+                'id' => 'required|integer|exists:cards,id',
+                'name' => 'required|string',
+                'description' => 'required|string'
+            ]);
+            if($validate->fails()){
+                return ResponseGenerator::generateResponse("OK", 422, null, $validate->errors());
+            }else{
+                $card = Card::find($data->id);
+                $card->name = $data->name;
+                $card->description = $data->description;
+                try{
+                    $card->save();
+                    return ResponseGenerator::generateResponse("OK", 405, null, "Carta actualizada correctamente");
+                }catch(\Exception $e){
+                    return ResponseGenerator::generateResponse("KO", 405, null, "Error al actualizar");
+                }
             }
         }
     }
@@ -146,12 +176,17 @@ class CardsController extends Controller
             }else{
                 $cards = DB::table('cards')
                 ->join('adverts', 'cards.id', '=', 'adverts.card_id')
-                ->select('cards.id', 'cards.name', 'adverts.price')
+                ->join('users', 'users.id', '=', 'adverts.user_id')
+                ->select('cards.name','adverts.nºcards', 'adverts.price', 'users.username')
                 ->where('name', 'LIKE', "%". $data->name . "%", 'AND', 'cards.id', 'IN', 'adverts.card_id')
                 ->orderBy('adverts.price','DESC')
                 ->get();
 
-                return ResponseGenerator::generateResponse("OK", 200, $cards, "Cartas filtradas");
+                if(count($cards) == 0){
+                    return ResponseGenerator::generateResponse("OK", 200, null, "No hay cartas a la venta con ese nombre");
+                }else{
+                    return ResponseGenerator::generateResponse("OK", 200, $cards, "Cartas filtradas");
+                }
             }
         }else{
             return ResponseGenerator::generateResponse("KO", 500, null, "Faltan el nombre por el que buscar");
