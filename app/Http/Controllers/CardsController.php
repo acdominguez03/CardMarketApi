@@ -136,7 +136,7 @@ class CardsController extends Controller
             Log::info('Obtenemos el valor de la petición', ['data' => $data]);
 
             $validate = Validator::make(json_decode($json,true), [
-               'name' => 'required'
+               'name' => 'required|string'
             ]);
 
             if($validate->fails()){
@@ -148,7 +148,11 @@ class CardsController extends Controller
                 try {
                     $cards = Card::select('id', 'name')->where('name', 'LIKE', "%". $data->name . "%")->get();
                     Log::info('Obtenemos las cartas por el filtro', ['cartas' => $cards]);
-                    return ResponseGenerator::generateResponse("OK", 200, $cards, "Cartas filtradas");
+                    if(count($cards) == 0){
+                        return ResponseGenerator::generateResponse("OK", 200, null, "No hay cartas a la venta con ese nombre");
+                    }else{
+                        return ResponseGenerator::generateResponse("OK", 200, $cards, "Cartas filtradas");
+                    }
                 }catch(\Exception $e){
                     Log::error('Error en la base de datos', ['error' => $e]);
                     return ResponseGenerator::generateResponse("OK", 200, $e, "Error en la base de datos");
