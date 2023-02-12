@@ -68,20 +68,27 @@ class UsersController extends Controller
             if($validate->fails()){
                 return ResponseGenerator::generateResponse("OK", 422, null, $validate->errors());
             }else{
-                try{
-                    $user = User::where('username', 'like', $data->username)->firstOrFail();
+                
+                $user = User::where('username', 'like', $data->username)->get();
 
-                    if(!Hash::check($data->password, $user->password)) {
-                        return ResponseGenerator::generateResponse("KO", 404, null, "Login incorrecto, comprueba la contraseña");
-                    }else{
-                        $user->tokens()->delete();
-    
-                        $token = $user->createToken($user->username, [$user->type]);
-                        return ResponseGenerator::generateResponse("OK", 200, $token->plainTextToken, "Login correcto");
+                if(!empty($user[0])){
+                    try{
+                        if(!Hash::check($data->password, $user[0]->password)) {
+                            return ResponseGenerator::generateResponse("KO", 302, null, "Login incorrecto");
+                        }else{
+                            $user[0]->tokens()->delete();
+        
+                            $token = $user[0]->createToken($user[0]->username, [$user[0]->type]);
+                            return ResponseGenerator::generateResponse("OK", 200, $token->plainTextToken, "Login correcto");
+                        }
+                    }catch(\Exception $e){
+                        return ResponseGenerator::generateResponse("KO", 302, null, "Login incorrecto");
                     }
-                }catch(\Exception $e){
-                    return ResponseGenerator::generateResponse("KO", 404, null, "Login incorrecto, usuario erróneo");
+                }else{
+                    return ResponseGenerator::generateResponse("KO", 404, null, "Usuario no encontrado");
                 }
+
+                
             }
 
             //lemkHUK3Qt68C4t6xtgDqvCUiRuOSUE2XaakGbI2

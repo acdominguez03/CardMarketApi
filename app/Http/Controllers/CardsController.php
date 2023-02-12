@@ -62,6 +62,8 @@ class CardsController extends Controller
                 }
                 
             }
+        }else{
+            return ResponseGenerator::generateResponse("KO", 404, null, "No hay datos");
         }
     }
 
