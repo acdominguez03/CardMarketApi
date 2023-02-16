@@ -81,7 +81,7 @@ class CollectionsController extends Controller
         $haveSets = true;
 
         while($haveSets) {
-            $response = Http::get('https://api.magicthegathering.io/v1/sets?page=' . $counter . '&pageSize=10')->body();
+            $response = Http::timeout(10)->get('https://api.magicthegathering.io/v1/sets?page=' . $counter . '&pageSize=10')->body();
 
             $data = json_decode($response);
 
@@ -112,22 +112,10 @@ class CollectionsController extends Controller
                 $haveSets = false;
             }
         }
-        // $client = new Client();
-        // $requests = [];
-        // $request = Http::timeout(10)->get('https://api.magicthegathering.io/v1/cards?page=0');
-        // $pages = $request->header('total-count') / $request->header('page-size');
+        
 
-
-        // for ($i = 1; $i<= $pages; $i++) {
-        //     $requests[] = $client->requestAsync('GET', 'hhttps://api.magicthegathering.io/v1/cards?page='.$pages);
-        // }
-
-        //GuzzleHttpPromiseall($promises)->then(function (array $responses) {
-        //    foreach ($responses as $response) {
-        //         $profile = json_decode($response->getBody(), true);
-        //         // Do something with the profile.
-        //    }
-        //})->wait();
+        $haveCards = true;
+        $counterCards = 0;
 
         while($haveCards) {
             $response = Http::timeout(10)->get('https://api.magicthegathering.io/v1/cards?page='.$counterCards)->body();
@@ -140,23 +128,26 @@ class CollectionsController extends Controller
                     $collection = Collection::where('code','LIKE',$card->set)->first();
     
                     if(count($getCard) == 0){
-                        $newCard = new Card();
-                        $newCard->number = $card->number;
-                        $newCard->name = $card->name;
-                        if(!isset($card->text)) {
-                            $newCard->description = "";
+                        if(isset($collection)) {
+                            $newCard = new Card();
+                            $newCard->number = $card->number;
+                            $newCard->name = $card->name;
+                            if(!isset($card->text)) {
+                                $newCard->description = "";
+                            }else{
+                                $newCard->description = $card->text;
+                            }
+                        
+                            try {
+                                $newCard->save();
+                                $newCard->collections()->attach($collection->id);
+                                set_time_limit(2000);
+                            }catch(\Exception $e){
+                                return ResponseGenerator::generateResponse("KO", 405, [$e,$card],"Error al crear la carta");
+                            }
                         }else{
-                            $newCard->description = $card->text;
-                        }
-                    
-                        try {
-                            $newCard->save();
-                            $newCard->collections()->attach($collection->id);
                             set_time_limit(2000);
-                        }catch(\Exception $e){
-                            return ResponseGenerator::generateResponse("KO", 405, [$e,$card],"Error al crear la carta");
                         }
-                       
                     }else{
                         $getCard[0]->number = $card->number;
                         $getCard[0]->name = $card->name;
