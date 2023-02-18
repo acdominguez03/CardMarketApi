@@ -15,14 +15,48 @@ class CardTest extends TestCase
      */
     public function test_empty_value()
     {
-        $token = "Y6ErhhwxQHG1JGVTHQZnQLEBEIgXitEgKKrdhgPI";
-        $response = $this->withHeaders(['Authorization'=>'Bearer '.$token, 'Accept' => 'application/json'])->postJson('/api/cards/create');
+        $token = "rgEJ2ntphmvxWc0tv0Xulxx2edztyDDXmrjmm8F8";
+        $response = $this->withHeaders(['Authorization'=>'Bearer '.$token])->putJson('/api/cards/create', []);
+ 
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'code' => 500,
+                'message' => 'No hay datos'
+            ]);
+    }
+
+    public function test_error_collection()
+    {
+        $token = "rgEJ2ntphmvxWc0tv0Xulxx2edztyDDXmrjmm8F8";
+        $response = $this->withHeaders(['Authorization'=>'Bearer '.$token])->putJson('/api/cards/create', [
+            "name" => "Tracer",
+            "description" => "Good",
+            "collection_id" =>  10
+        ]);
  
         $response
             ->assertStatus(200)
             ->assertJson([
                 'code' => 404,
-                'message' => 'No hay datos'
+                'message' => 'Colección no encontrada'
+            ]);
+    }
+
+    public function test_create_card()
+    {
+        $token = "rgEJ2ntphmvxWc0tv0Xulxx2edztyDDXmrjmm8F8";
+        $response = $this->withHeaders(['Authorization'=>'Bearer '.$token])->putJson('/api/cards/create', [
+            "name" => "Tracer",
+            "description" => "Good",
+            "collection_id" =>  1
+        ]);
+ 
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'code' => 200,
+                'message' => 'Carta añadida correctamente'
             ]);
     }
 }
