@@ -28,6 +28,8 @@ Route::prefix('users')->group(function(){
     Route::put('/register', [UsersController::class, 'register']);
     Route::post('/login', [UsersController::class, 'login']);
     Route::post('/recoverPassword', [UsersController::class, 'recoverPassword']);
+    Route::get('authorized/google', [UsersController::class, 'redirectToGoogle']);
+    Route::get('authorized/google/callback', [UsersController::class, 'handleGoogleCallback']);
 
 });
 
