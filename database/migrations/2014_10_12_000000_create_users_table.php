@@ -18,7 +18,7 @@ return new class extends Migration
             $table->id();
             $table->string('username')->unique();
             $table->string('email')->unique();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->string('google_id')->nullable();
             $table->enum('type', ['particular', 'profesional', 'admin']);
             $table->timestamps();

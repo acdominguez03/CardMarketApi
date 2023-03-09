@@ -133,31 +133,23 @@ class UsersController extends Controller
         return Socialite::driver('google')->redirect();
     }
 
-    public function handleGoogleCallback()
+    public function googleCallback()
     {
-        try {
+        // try {
       
-            $user = Socialite::driver('google')->user();
-       
-            $finduser = User::where('google_id', $user->id)->first();
-       
-            if($finduser){
-       
-                
-       
-            }else{
-                $newUser = User::create([
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'google_id'=> $user->id,
-                    'password' => Hash::make("123456")
-                ]);
-      
-                
-            }
-      
-        } catch (Exception $e) {
-            dd($e->getMessage());
-        }
+        $user_google = Socialite::driver('google')->stateless()->user();
+
+        $user = User::updateOrCreate([
+            'google_id' => $user_google->id,    
+        ], [
+            'username' => $user_google->name,
+            'email' => $user_google->email,
+            'password' => Hash::make("123456")
+        ]);
+
+        $user->tokens()->delete();
+    
+         $token = $user->createToken($user->username);
+        return ResponseGenerator::generateResponse("OK", 200, $token->plainTextToken, "Login correcto");
     }
 }
