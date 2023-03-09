@@ -9,6 +9,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use JWTAuth;
 
 class UsersController extends Controller
 {
@@ -75,10 +77,10 @@ class UsersController extends Controller
                     if(!Hash::check($data->password, $user->password)) {
                         return ResponseGenerator::generateResponse("KO", 404, null, "Login incorrecto, comprueba la contraseña");
                     }else{
-                        $user->tokens()->delete();
-    
-                        $token = $user->createToken($user->username, [$user->type]);
-                        return ResponseGenerator::generateResponse("OK", 200, $token->plainTextToken, "Login correcto");
+                        
+                        $credentials = $request->only('username', 'password');
+                        $token = JWTAuth::attempt($credentials);
+                        return ResponseGenerator::generateResponse("OK", 200, $token, "Login correcto");
                     }
                 }catch(\Exception $e){
                     return ResponseGenerator::generateResponse("KO", 404, null, "Login incorrecto, usuario erróneo");
